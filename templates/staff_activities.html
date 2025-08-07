@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Staff Activities{% endblock %}
+{% block content %}
+<div class="bg-gradient-to-r from-teal-400 to-emerald-500 shadow-lg rounded-lg p-6 animate-fade-in">
+    <h1 class="text-3xl font-extrabold text-white mb-6 bg-gradient-to-r from-yellow-400 to-gold-600 p-3 rounded-md inline-block animate-bounce-slow">Activities for {{ staff.username }}</h1>
+    <div class="bg-white p-4 rounded-lg shadow-md">
+        {% if transactions %}
+            <div class="overflow-x-auto animate-fade-in-slow">
+                <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                    <thead class="bg-gradient-to-r from-blue-200 to-green-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Type</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Customer</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Amount</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Details</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for transaction in transactions %}
+                            <tr class="hover:bg-gray-50 transition duration-200">
+                                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.type }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.customer_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.amount or 'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.details or 'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ transaction.created_at }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-gray-600">No activities found for this staff member.</p>
+        {% endif %}
+    </div>
+    <div class="mt-6">
+        <a href="{{ url_for('list_staff') }}" class="bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition duration-300 transform hover:scale-105">Back to Staff List</a>
+    </div>
+</div>
+<style>
+    .animate-fade-in {
+        animation: fadeIn 1s ease-in;
+    }
+    .animate-fade-in-slow {
+        animation: fadeIn 2s ease-in;
+    }
+    .animate-bounce-slow {
+        animation: bounce 2s infinite;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+</style>
+{% endblock %}

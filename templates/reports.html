@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+{% block title %}Reports - Savings & Loan{% endblock %}
+{% block content %}
+<div class="bg-gray-100 min-h-screen">
+    <!-- Main Content -->
+    <div class="container mx-auto p-4">
+        <!-- Header -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold">Reports</h2>
+            <a href="{{ url_for('dashboard') }}" class="inline-block mt-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Back to Dashboard</a>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h3 class="text-xl font-semibold mb-4">Report Filters</h3>
+            <form method="POST" action="{{ url_for('reports') }}" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="report_type" class="block text-sm font-medium text-gray-700">Report Type</label>
+                        <select id="report_type" name="report_type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <option value="customer" {% if report_type == 'customer' %}selected{% endif %}>Customer Report</option>
+                            <option value="staff" {% if report_type == 'staff' %}selected{% endif %}>Staff Report</option>
+                            <option value="transaction" {% if report_type == 'transaction' %}selected{% endif %}>Transaction History</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="customer_name" class="block text-sm font-medium text-gray-700">Customer Name</label>
+                        <input type="text" id="customer_name" name="customer_name" value="{{ customer_name }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div>
+                        <label for="bvn" class="block text-sm font-medium text-gray-700">BVN</label>
+                        <input type="text" id="bvn" name="bvn" value="{{ bvn }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div>
+                        <label for="loan_status" class="block text-sm font-medium text-gray-700">Loan Status</label>
+                        <select id="loan_status" name="loan_status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <option value="">All</option>
+                            <option value="active" {% if loan_status == 'active' %}selected{% endif %}>Active</option>
+                            <option value="paid" {% if loan_status == 'paid' %}selected{% endif %}>Paid</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="transaction_type" class="block text-sm font-medium text-gray-700">Transaction Type</label>
+                        <select id="transaction_type" name="transaction_type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <option value="">All</option>
+                            <option value="savings_deposit" {% if transaction_type == 'savings_deposit' %}selected{% endif %}>Savings Deposit</option>
+                            <option value="savings_withdrawal" {% if transaction_type == 'savings_withdrawal' %}selected{% endif %}>Savings Withdrawal</option>
+                            <option value="loan_payment" {% if transaction_type == 'loan_payment' %}selected{% endif %}>Loan Payment</option>
+                            <option value="loan_creation" {% if transaction_type == 'loan_creation' %}selected{% endif %}>Loan Creation</option>
+                            <option value="customer_creation" {% if transaction_type == 'customer_creation' %}selected{% endif %}>Customer Creation</option>
+                            <option value="customer_update" {% if transaction_type == 'customer_update' %}selected{% endif %}>Customer Update</option>
+                            <option value="customer_deletion" {% if transaction_type == 'customer_deletion' %}selected{% endif %}>Customer Deletion</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="min_amount" class="block text-sm font-medium text-gray-700">Min Amount</label>
+                        <input type="number" id="min_amount" name="min_amount" value="{{ min_amount }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div>
+                        <label for="max_amount" class="block text-sm font-medium text-gray-700">Max Amount</label>
+                        <input type="number" id="max_amount" name="max_amount" value="{{ max_amount }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div>
+                        <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input type="date" id="start_date" name="start_date" value="{{ start_date }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div>
+                        <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                        <input type="date" id="end_date" name="end_date" value="{{ end_date }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div>
+                        <label for="filter_logic" class="block text-sm font-medium text-gray-700">Filter Logic</label>
+                        <select id="filter_logic" name="filter_logic" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <option value="AND" {% if filter_logic == 'AND' %}selected{% endif %}>AND</option>
+                            <option value="OR" {% if filter_logic == 'OR' %}selected{% endif %}>OR</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filter_name" class="block text-sm font-medium text-gray-700">Save Filter As</label>
+                        <input type="text" id="filter_name" name="filter_name" value="{{ filter_name or '' }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div>
+                        <label for="load_filter" class="block text-sm font-medium text-gray-700">Load Saved Filter</label>
+                        <select id="load_filter" name="load_filter" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <option value="">Select a filter</option>
+                            {% for filter in saved_filters %}
+                                <option value="{{ filter.id }}">{{ filter.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4 flex space-x-4">
+                    <button type="submit" name="apply_filters" value="apply" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Apply Filters</button>
+                    <button type="submit" name="save_filter" value="save" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Save Filter</button>
+                    <button type="submit" name="export_type" value="{{ report_type }}_csv" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Export as CSV</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Report Results -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            {% if report_type == 'customer' %}
+                <h3 class="text-xl font-semibold mb-4">Customer Report</h3>
+                {% if customer_report %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-gray-300">
+                            <thead>
+                                <tr class="bg-gray-200">
+                                    <th class="border border-gray-300 p-2">Customer Name</th>
+                                    <th class="border border-gray-300 p-2">Number of Loans</th>
+                                    <th class="border border-gray-300 p-2">Total Loan Amount</th>
+                                    <th class="border border-gray-300 p-2">Total Savings</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in customer_report %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="border border-gray-300 p-2">{{ row[1] }}</td>
+                                        <td class="border border-gray-300 p-2">{{ row[2] }}</td>
+                                        <td class="border border-gray-300 p-2">{{ row[3] | round(2) }}</td>
+                                        <td class="border border-gray-300 p-2">{{ row[4] | round(2) }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <canvas id="customerChart" class="mt-4" height="100"></canvas>
+                {% else %}
+                    <p class="text-gray-600">No customer data available.</p>
+                {% endif %}
+            {% elif report_type == 'staff' %}
+                <h3 class="text-xl font-semibold mb-4">Staff Report</h3>
+                {% if staff_report %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-gray-300">
+                            <thead>
+                                <tr class="bg-gray-200">
+                                    <th class="border border-gray-300 p-2">Staff Username</th>
+                                    <th class="border border-gray-300 p-2">Number of Transactions</th>
+                                    <th class="border border-gray-300 p-2">Total Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in staff_report %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="border border-gray-300 p-2">{{ row[1] }}</td>
+                                        <td class="border border-gray-300 p-2">{{ row[2] }}</td>
+                                        <td class="border border-gray-300 p-2">{{ row[3] | round(2) }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <canvas id="staffChart" class="mt-4" height="100"></canvas>
+                {% else %}
+                    <p class="text-gray-600">No staff data available.</p>
+                {% endif %}
+            {% elif report_type == 'transaction' %}
+                <h3 class="text-xl font-semibold mb-4">Transaction History</h3>
+                {% if transaction_report %}
+                    <div class="overflow-x-auto">
+                        <table id="transaction-table" class="w-full border-collapse border border-gray-300">
+                            <thead>
+                                <tr class="bg-gray-200">
+                                    <th class="border border-gray-300 p-2">Transaction ID</th>
+                                    <th class="border border-gray-300 p-2">Type</th>
+                                    <th class="border border-gray-300 p-2">Amount</th>
+                                    <th class="border border-gray-300 p-2">Details</th>
+                                    <th class="border border-gray-300 p-2">Customer Name</th>
+                                    <th class="border border-gray-300 p-2">Created By</th>
+                                    <th class="border border-gray-300 p-2">Created At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in transaction_report %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="border border-gray-300 p-2">{{ row[0] }}</td>
+                                        <td class="border border-gray-300 p-2">{{ row[1] | capitalize }}</td>
+                                        <td class="border border-gray-300 p-2">{{ row[2] }}</td>
+                                        <td class="border border-gray-300 p-2">{{ row[3] }}</td>
+                                        <td class="border border-gray-300 p-2">{{ row[4] }}</td>
+                                        <td class="border border-gray-300 p-2">{{ row[5] }}</td>
+                                        <td class="border border-gray-300 p-2">{{ row[6] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <canvas id="transactionChart" class="mt-4" height="100"></canvas>
+                {% else %}
+                    <p class="text-gray-600">No transaction data available.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    const socket = io();
+    socket.on('new_transaction', function(data) {
+        const reportType = "{{ report_type }}";
+        if (reportType === "transaction") {
+            const table = document.getElementById('transaction-table')?.getElementsByTagName('tbody')[0];
+            if (table) {
+                const row = table.insertRow(0);
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="border border-gray-300 p-2">${data.id}</td>
+                    <td class="border border-gray-300 p-2">${data.type}</td>
+                    <td class="border border-gray-300 p-2">${data.amount}</td>
+                    <td class="border border-gray-300 p-2">${data.details}</td>
+                    <td class="border border-gray-300 p-2">${data.customer_name}</td>
+                    <td class="border border-gray-300 p-2">${data.created_by}</td>
+                    <td class="border border-gray-300 p-2">${data.created_at}</td>
+                `;
+                // Update transaction chart
+                const ctx = document.getElementById('transactionChart')?.getContext('2d');
+                if (ctx && window.transactionChart) {
+                    window.transactionChart.data.labels.unshift(data.customer_name);
+                    window.transactionChart.data.datasets[0].data.unshift(parseFloat(data.amount) || 0);
+                    window.transactionChart.update();
+                }
+            }
+        }
+    });
+
+    {% if customer_chart_data.labels %}
+        new Chart(document.getElementById('customerChart'), {
+            type: 'bar',
+            data: {
+                labels: {{ customer_chart_data.labels | tojson }},
+                datasets: [
+                    {
+                        label: 'Total Loans',
+                        data: {{ customer_chart_data.loans | tojson }},
+                        backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Total Savings',
+                        data: {{ customer_chart_data.savings | tojson }},
+                        backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Amount' }
+                    },
+                    x: { title: { display: true, text: 'Customers' } }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Customer Loans and Savings' }
+                }
+            }
+        });
+    {% endif %}
+
+    {% if staff_chart_data.labels %}
+        new Chart(document.getElementById('staffChart'), {
+            type: 'pie',
+            data: {
+                labels: {{ staff_chart_data.labels | tojson }},
+                datasets: [{
+                    label: 'Transaction Count',
+                    data: {{ staff_chart_data.transactions | tojson }},
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.6)',
+                        'rgba(34, 197, 94, 0.6)',
+                        'rgba(234, 179, 8, 0.6)',
+                        'rgba(239, 68, 68, 0.6)',
+                        'rgba(168, 85, 247, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(34, 197, 94, 1)',
+                        'rgba(234, 179, 8, 1)',
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(168, 85, 247, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Staff Transaction Activity' }
+                }
+            }
+        });
+    {% endif %}
+
+    {% if transaction_chart_data.labels %}
+        window.transactionChart = new Chart(document.getElementById('transactionChart'), {
+            type: 'bar',
+            data: {
+                labels: {{ transaction_chart_data.labels | tojson }},
+                datasets: [{
+                    label: 'Transaction Amounts',
+                    data: {{ transaction_chart_data.amounts | tojson }},
+                    backgroundColor: 'rgba(168, 85, 247, 0.6)',
+                    borderColor: 'rgba(168, 85, 247, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Amount' }
+                    },
+                    x: { title: { display: true, text: 'Customers' } }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Transaction History' }
+                }
+            }
+        });
+    {% endif %}
+</script>
+{% endblock %}

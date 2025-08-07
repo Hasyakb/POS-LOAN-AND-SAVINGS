@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Make Payment{% endblock %}
+{% block content %}
+<div class="bg-gradient-to-r from-indigo-400 to-purple-500 shadow-lg rounded-lg p-6 animate-fade-in">
+    <h1 class="text-3xl font-extrabold text-white mb-6 bg-gradient-to-r from-yellow-400 to-gold-600 p-3 rounded-md inline-block animate-bounce-slow">Make Payment for {{ customer.full_name }}</h1>
+    <div class="bg-white p-4 rounded-lg shadow-md mb-4">
+        <p class="text-lg text-gray-700">Loan Balance: {{ loan.balance }}</p>
+        <p class="text-lg text-gray-700">Savings Balance: {{ savings_balance }}</p>
+    </div>
+    <form method="POST" action="{{ url_for('make_payment', customer_id=customer.id, loan_id=loan.id) }}" class="bg-white p-6 rounded-lg shadow-md">
+        <div class="grid grid-cols-1 gap-4">
+            <div class="mb-4 animate-fade-in-slow">
+                <label for="amount" class="block text-gray-700 font-semibold mb-2">Payment Amount</label>
+                <input type="number" id="amount" name="amount" step="0.01" required class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-4 animate-fade-in-slow delay-100">
+                <label for="payment_type" class="block text-gray-700 font-semibold mb-2">Payment Type</label>
+                <select id="payment_type" name="payment_type" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="full">Full Payment</option>
+                    <option value="partial">Partial Payment</option>
+                </select>
+            </div>
+            <div class="mb-4 animate-fade-in-slow delay-200">
+                <label for="payment_source" class="block text-gray-700 font-semibold mb-2">Payment Source</label>
+                <select id="payment_source" name="payment_source" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="cash">Cash</option>
+                    <option value="savings">Savings</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-6 flex space-x-4">
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition duration-300 transform hover:scale-105">Make Payment</button>
+            <a href="{{ url_for('view_customer', customer_id=customer.id) }}" class="bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition duration-300 transform hover:scale-105">Cancel</a>
+        </div>
+    </form>
+</div>
+<style>
+    .animate-fade-in {
+        animation: fadeIn 1s ease-in;
+    }
+    .animate-fade-in-slow {
+        animation: fadeIn 2s ease-in;
+    }
+    .animate-bounce-slow {
+        animation: bounce 2s infinite;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+</style>
+{% endblock %}

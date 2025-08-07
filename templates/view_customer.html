@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}View Customer - Savings & Loan{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gray-100">
+    <!-- Navigation Bar -->
+    <nav class="bg-indigo-600 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">Savings & Loan App</h1>
+            <div class="flex space-x-6">
+                <a href="{{ url_for('dashboard') }}" class="hover:text-indigo-200 transition duration-200">Dashboard</a>
+                {% if current_user.role == 'admin' %}
+                <a href="{{ url_for('list_staff') }}" class="hover:text-indigo-200 transition duration-200">Staff</a>
+                <a href="{{ url_for('audit_logs') }}" class="hover:text-indigo-200 transition duration-200">Audit Logs</a>
+                <a href="{{ url_for('reports') }}" class="hover:text-indigo-200 transition duration-200">Reports</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}" class="hover:text-indigo-200 transition duration-200">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-6 max-w-6xl">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="mb-6">
+            {% for category, message in messages %}
+            <div class="p-4 rounded-lg {% if category == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Customer Header -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Customer: {{ customer.full_name }}</h1>
+            <a href="{{ url_for('dashboard') }}" class="inline-block bg-gray-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-200">Back to Dashboard</a>
+        </div>
+
+        <!-- Customer Details -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Customer Details</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <p><strong class="text-gray-600">BVN:</strong> {{ customer.bvn }}</p>
+                <p><strong class="text-gray-600">Location:</strong> {{ customer.location }}</p>
+                <p><strong class="text-gray-600">Phone Number:</strong> {{ customer.phone_number }}</p>
+                <p><strong class="text-gray-600">Next of Kin:</strong> {{ customer.next_of_kin }}</p>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Actions</h2>
+            <div class="flex flex-wrap gap-4">
+                <a href="{{ url_for('edit_customer', customer_id=customer.id) }}" class="inline-block bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200">Edit Customer</a>
+                <a href="{{ url_for('create_loan', customer_id=customer.id) }}" class="inline-block bg-green-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200">Create Loan</a>
+                <a href="{{ url_for('deposit_savings', customer_id=customer.id) }}" class="inline-block bg-purple-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-purple-600 transition duration-200">Deposit Savings</a>
+            </div>
+        </div>
+
+        <!-- Loans -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Loans</h2>
+            {% if loans %}
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse bg-white">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700">
+                            <th class="border border-gray-300 p-3 text-left font-semibold">Amount</th>
+                            <th class="border border-gray-300 p-3 text-left font-semibold">Balance</th>
+                            <th class="border border-gray-300 p-3 text-left font-semibold">Status</th>
+                            <th class="border border-gray-300 p-3 text-left font-semibold">Created At</th>
+                            <th class="border border-gray-300 p-3 text-left font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for loan in loans %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="border border-gray-300 p-3">{{ loan.amount | round(2) }}</td>
+                            <td class="border border-gray-300 p-3">{{ loan.balance | round(2) }}</td>
+                            <td class="border border-gray-300 p-3">{{ loan.status | capitalize }}</td>
+                            <td class="border border-gray-300 p-3">{{ loan.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td class="border border-gray-300 p-3">
+                                <a href="{{ url_for('make_payment', loan_id=loan.id) }}" class="inline-block bg-blue-500 text-white font-semibold px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-200">Make Payment</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-gray-600">No loans found for this customer.</p>
+            {% endif %}
+        </div>
+
+        <!-- Savings -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Savings</h2>
+            {% if savings %}
+            <div class="space-y-2">
+                <p><strong class="text-gray-600">Total Savings:</strong> {{ savings.amount | round(2) }}</p>
+                <p><strong class="text-gray-600">Goal:</strong> Save 5000 ({{ (savings.amount / 50) | round(2) }}% achieved)</p>
+            </div>
+            {% else %}
+            <p class="text-gray-600">No savings account found. Use 'Deposit Savings' to create one.</p>
+            {% endif %}
+        </div>
+
+        <!-- Transactions -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Transactions</h2>
+            {% if transactions %}
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse bg-white">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700">
+                            <th class="border border-gray-300 p-3 text-left font-semibold">Type</th>
+                            <th class="border border-gray-300 p-3 text-left font-semibold">Amount</th>
+                            <th class="border border-gray-300 p-3 text-left font-semibold">Details</th>
+                            <th class="border border-gray-300 p-3 text-left font-semibold">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="border border-gray-300 p-3">{{ transaction.type | capitalize }}</td>
+                            <td class="border border-gray-300 p-3">{{ transaction.amount | round(2) if transaction.amount is not none else 'N/A' }}</td>
+                            <td class="border border-gray-300 p-3">{{ transaction.details or 'N/A' }}</td>
+                            <td class="border border-gray-300 p-3">{{ transaction.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-gray-600">No transactions found for this customer.</p>
+            {% endif %}
+        </div>
+
+        <!-- Recommendation -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Recommendation</h2>
+            <div class="space-y-2">
+                <p class="text-gray-600">{{ recommendation.message }}</p>
+                {% if recommendation.type != 'none' and recommendation.amount > 0 %}
+                <p><strong class="text-gray-600">Act Now:</strong> {{ recommendation.amount | round(2) }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

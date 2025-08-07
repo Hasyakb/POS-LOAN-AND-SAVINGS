@@ -1,0 +1,146 @@
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: white;
+    padding: 10px 20px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: all 0.3s ease;
+    padding: 8px 16px;
+    border-radius: 5px;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    transition: all 0.3s ease;
+    padding: 8px 16px;
+    border-radius: 5px;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+    color: white;
+}
+
+.table {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    vertical-align: middle;
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.flash-messages {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.flash-messages li {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.flash-messages li.error {
+    background-color: #ffcccc;
+    border: 1px solid #ff6666;
+    color: #cc0000;
+}
+
+.flash-messages li.success {
+    background-color: #ccffcc;
+    border: 1px solid #66cc66;
+    color: #006600;
+}
+
+form {
+    margin: 20px 0;
+}
+
+form label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="date"],
+form select {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+form button {
+    margin-right: 10px;
+}
+
+h1, h2 {
+    color: #333;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
